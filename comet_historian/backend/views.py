@@ -9,6 +9,7 @@ import requests
 from pymongo import MongoClient
 from comet_utils.database.comet import Comet
 from comet_utils.backtester.backtester import Backtester as bt
+from comet_utils.processor.processor import Processor as p
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -40,8 +41,10 @@ def backtestView(request):
                 comet.cloud_connect()
                 comet.store("backtest_request",pd.DataFrame([info]))
                 prices = comet.retrieve("coinbase_prices")
+                prices = p.column_date_processing(prices)
                 trades = bt.backtest(start,end,info,prices)
-                complete = {"trades":trades.to_dict("records")}
+                analysis = bt.analyze(trades,prices)
+                complete = {"trades":trades.to_dict("records"),"analysis":analysis.to_dict("records")}
             else:
                 complete = {"trades":[],"errors":"incorrect key"}
         else:

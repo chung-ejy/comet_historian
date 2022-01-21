@@ -67,3 +67,41 @@ class Backtester(object):
                 date = date + timedelta(days=1)
 
         return pd.DataFrame(trades)
+
+    @classmethod
+    def analyze(self,current_trades,final):
+        viz = []
+        row = current_trades.iloc[0]
+        pv = 100
+        start_date = row["date"]
+        symbol = row["crypto"]
+        amount = float(pv/row["buy_price"])
+        end_date = row["sell_date"]
+        pv2 = amount * row["sell_price"]
+        viz.append({"date":start_date,"crypto":symbol,"amount":amount})
+        viz.append({"date":end_date,"crypto":symbol,"amount":amount})
+        track_date = start_date
+        while track_date < end_date - timedelta(days=1):
+            track_date = track_date + timedelta(days=1)
+            viz.append({"date":track_date,"crypto":symbol,"amount":amount})
+        for i in range(1,current_trades.index.size-1):
+            row = current_trades.iloc[i]
+            symbol = current_trades.iloc[i]["crypto"]
+            start_date = row["date"]
+            pv = pv2
+            amount =  pv /row["buy_price"]
+            viz.append({"date":start_date,"crypto":symbol,"amount":amount})
+            track_date = start_date
+            end_date = row["sell_date"]
+            while track_date < end_date:
+                track_date = track_date + timedelta(days=1)
+                viz.append({"date":track_date,"crypto":symbol,"amount":amount})
+            pv2 = amount * row["sell_price"]
+            viz.append({"date":end_date,"crypto":symbol,"amount":amount})
+        window = pd.DataFrame(viz)
+        window["crypto"] = [x.upper() for x in window["crypto"]]
+        example = final.merge(window,how="left",on=["date","crypto"])
+        example = example.dropna().sort_values("date")
+        example["actual"] = example["amount"] * example["close"]
+        example["actual_delta"] = (example["actual"] - example["actual"].iloc[0]) / example["actual"].iloc[0]
+        return example[["date","actual_delta"]]
