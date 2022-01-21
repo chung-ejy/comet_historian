@@ -81,7 +81,7 @@ class ExitStrategy(object):
     def backtest_due_date(self,final,trade,rt,req):
         symbol = trade["crypto"]
         exits = final[(final["date"]>trade["date"]) & (final["crypto"]==symbol)]
-        bp = float(trade["value"])
+        bp = float(trade["close"])
         due_date = trade["date"]+timedelta(days=rt)
         exits["delta"] = (exits["value"] - bp) / bp
         profits = exits[(exits["delta"] >= req) & (exits["date"] <= due_date)]
@@ -108,7 +108,7 @@ class ExitStrategy(object):
     def backtest_hold(self,final,trade,rt,req):
         symbol = trade["crypto"]
         exits = final[(final["date"]>trade["date"]) & (final["crypto"]==symbol)]
-        bp = float(trade["value"])
+        bp = float(trade["close"])
         exits["delta"] = (exits["value"] - bp) / bp
         profits = exits[(exits["delta"] >= req) & (exits["date"] > trade["date"])]
         if profits.index.size < 1:
@@ -128,7 +128,7 @@ class ExitStrategy(object):
     def backtest_adaptive_hold(self,final,trade,rt,req):
         symbol = trade["crypto"]
         exits = final[(final["date"]>trade["date"]) & (final["crypto"]==symbol)]
-        bp = float(trade["value"])
+        bp = float(trade["close"])
         exits["delta"] = (exits["value"] - bp) / bp
         profits = exits[(exits["date"] > trade["date"])
                         & (exits["delta"] > req)
@@ -153,7 +153,7 @@ class ExitStrategy(object):
     def backtest_adaptive_due_date(self,final,trade,rt,req):
         symbol = trade["crypto"]
         exits = final[(final["date"]>trade["date"]) & (final["crypto"]==symbol)]
-        bp = float(trade["value"])
+        bp = float(trade["close"])
         exits["delta"] = (exits["value"] - bp) / bp
         due_date = trade["date"]+timedelta(days=rt)
         profits = exits[(exits["date"] <= due_date)

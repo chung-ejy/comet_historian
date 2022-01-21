@@ -34,7 +34,8 @@ class Backtester(object):
             crypto_sim["p_sign_change"] = [row[1]["velocity"] * row[1]["inflection"] < 0 for row in crypto_sim.iterrows()]
             ns.append(crypto_sim)
         final = pd.concat(ns)
-        final = final[(final["date"] < end)]
+        final = final[(final["date"] < end) & (final["value"] > 0)]
+        final.rename(columns={"value":"close"},inplace=True)
         signal = float(s/100)
         req = float(r/100)
         date = start
