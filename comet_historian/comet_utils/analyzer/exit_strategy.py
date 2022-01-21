@@ -89,7 +89,7 @@ class ExitStrategy(object):
         if profits.index.size < 1:
             if breakeven.index.size < 1:
                 the_exit = exits[(exits["date"] > due_date)].iloc[-1]
-                trade["sell_price"] = the_exit["value"]
+                trade["sell_price"] = the_exit["close"]
                 trade["type"] = "loss"
             else:
                 the_exit = breakeven.iloc[0]
@@ -114,7 +114,7 @@ class ExitStrategy(object):
         if profits.index.size < 1:
             the_exit = exits.iloc[-1]
             trade["type"] = "held"
-            trade["sell_price"] = the_exit["value"]
+            trade["sell_price"] = the_exit["close"]
         else:
             the_exit = profits.iloc[0]
             trade["type"] = "profit"
@@ -143,7 +143,7 @@ class ExitStrategy(object):
         else:
             the_exit = profits.iloc[0]
             trade["type"] = "profit"
-        trade["sell_price"] = the_exit["value"]
+        trade["sell_price"] = the_exit["close"]
         trade["sell_date"] = the_exit["date"]
         trade["buy_price"] = bp
         trade["delta"] = (trade["sell_price"] - trade["buy_price"])/ trade["buy_price"]
@@ -167,7 +167,7 @@ class ExitStrategy(object):
         if profits.index.size < 1:
             if breakeven.index.size < 1:
                 the_exit = exits[(exits["date"] > due_date)].iloc[-1]
-                trade["sell_price"] = the_exit["value"]
+                trade["sell_price"] = the_exit["close"]
                 trade["type"] = "loss"
             else:
                 the_exit = breakeven.iloc[0]
@@ -176,7 +176,7 @@ class ExitStrategy(object):
         else:
             the_exit = profits.iloc[0]
             trade["type"] = "profit"
-            trade["sell_price"] = the_exit["value"]
+            trade["sell_price"] = the_exit["close"]
         trade["sell_date"] = the_exit["date"]
         trade["buy_price"] = bp
         trade["delta"] = (trade["sell_price"] - trade["buy_price"]) / trade["buy_price"]
