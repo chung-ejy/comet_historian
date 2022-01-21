@@ -30,6 +30,7 @@ def backtestView(request):
             print(request.body)
             print(request.body.decode("utf-8"))
             info = json.loads(request.body.decode("utf-8"))
+            print(info)
             if info["key"] == key:
                 start = datetime.strptime(info["start"],"%Y-%m-%d")
                 end = datetime.strptime(info["end"],"%Y-%m-%d")
