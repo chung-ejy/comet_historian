@@ -34,6 +34,9 @@ def backtestView(request):
             if info["key"] == key:
                 start = datetime.strptime(info["start"],"%Y-%m-%d")
                 end = datetime.strptime(info["end"],"%Y-%m-%d")
+                for key in info.keys():
+                    if key in ["req","signal","retrack_days"]:
+                        info[key] = int(info[key])
                 comet.cloud_connect()
                 comet.store("backtest_request",pd.DataFrame([info]))
                 prices = comet.retrieve("coinbase_prices")
