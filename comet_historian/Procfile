@@ -1,0 +1,1 @@
+web: gunicorn --chdir comet_historian comet_historian.wsgi
