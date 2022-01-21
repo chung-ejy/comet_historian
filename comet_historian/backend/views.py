@@ -27,7 +27,7 @@ def backtestView(request):
         elif request.method == "UPDATE":
             complete = {}
         elif request.method == "POST":
-            info = json.loads(request.body.decode("utf-8"))
+            info = json.loads(request.body)
             if info["key"] == key:
                 start = datetime.strptime(info["start"],"%Y-%m-%d")
                 end = datetime.strptime(info["end"],"%Y-%m-%d")
