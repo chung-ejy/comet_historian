@@ -24,6 +24,7 @@ class Backtester(object):
         market = market.fillna(method="ffill")
         sim = market.melt(id_vars="date").copy()
         ns = []
+        sim = sim[sim["value"] > 0]
         for crypto in [x.lower() for x in symbols]:
             crypto_sim = sim[sim["crypto"]==crypto].copy()
             crypto_sim.sort_values("date",inplace=True)
@@ -33,7 +34,7 @@ class Backtester(object):
             crypto_sim["p_sign_change"] = [row[1]["velocity"] * row[1]["inflection"] < 0 for row in crypto_sim.iterrows()]
             ns.append(crypto_sim)
         final = pd.concat(ns)
-        final = final[(final["date"] < end) * (final["value"] > 0)]
+        final = final[(final["date"] < end)]
         signal = float(s/100)
         req = float(r/100)
         date = start
