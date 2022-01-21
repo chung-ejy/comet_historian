@@ -83,7 +83,7 @@ class ExitStrategy(object):
         exits = final[(final["date"]>trade["date"]) & (final["crypto"]==symbol)]
         bp = float(trade["close"])
         due_date = trade["date"]+timedelta(days=rt)
-        exits["delta"] = (exits["value"] - bp) / bp
+        exits["delta"] = (exits["close"] - bp) / bp
         profits = exits[(exits["delta"] >= req) & (exits["date"] <= due_date)]
         breakeven = exits[(exits["delta"]>=0) & (exits["date"] > due_date)]
         if profits.index.size < 1:
@@ -109,7 +109,7 @@ class ExitStrategy(object):
         symbol = trade["crypto"]
         exits = final[(final["date"]>trade["date"]) & (final["crypto"]==symbol)]
         bp = float(trade["close"])
-        exits["delta"] = (exits["value"] - bp) / bp
+        exits["delta"] = (exits["close"] - bp) / bp
         profits = exits[(exits["delta"] >= req) & (exits["date"] > trade["date"])]
         if profits.index.size < 1:
             the_exit = exits.iloc[-1]
@@ -129,7 +129,7 @@ class ExitStrategy(object):
         symbol = trade["crypto"]
         exits = final[(final["date"]>trade["date"]) & (final["crypto"]==symbol)]
         bp = float(trade["close"])
-        exits["delta"] = (exits["value"] - bp) / bp
+        exits["delta"] = (exits["close"] - bp) / bp
         profits = exits[(exits["date"] > trade["date"])
                         & (exits["delta"] > req)
                         & (exits["p_sign_change"]==True)
@@ -154,7 +154,7 @@ class ExitStrategy(object):
         symbol = trade["crypto"]
         exits = final[(final["date"]>trade["date"]) & (final["crypto"]==symbol)]
         bp = float(trade["close"])
-        exits["delta"] = (exits["value"] - bp) / bp
+        exits["delta"] = (exits["close"] - bp) / bp
         due_date = trade["date"]+timedelta(days=rt)
         profits = exits[(exits["date"] <= due_date)
                         & (exits["delta"] >= req)
