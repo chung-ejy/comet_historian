@@ -53,12 +53,12 @@ class ExitStrategy(object):
         return profits
 
     @classmethod
-    def hold(self,final,trade,rt,req):
+    def hold(self,final,req):
         profits = final[(final["delta"] >= req)]
         return profits
 
     @classmethod
-    def adaptive_hold(self,final,trade,rt,req):
+    def adaptive_hold(self,final):
         profits = final[(final["delta"] > 0)
                         & (final["p_sign_change"]==True)
                         & (final["velocity"] <= 3)
@@ -68,7 +68,7 @@ class ExitStrategy(object):
         return profits
 
     @classmethod
-    def adaptive_due_date(self,final,trade,rt,req):
+    def adaptive_due_date(self,final):
         profits = final[(final["delta"] >= 0)
                         & (final["p_sign_change"]==True)
                         & (final["velocity"] <= 3)

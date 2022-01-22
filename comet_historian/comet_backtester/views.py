@@ -28,10 +28,7 @@ def backtestView(request):
         elif request.method == "UPDATE":
             complete = {}
         elif request.method == "POST":
-            print(request.body)
-            print(request.body.decode("utf-8"))
             info = json.loads(request.body.decode("utf-8"))
-            print(info)
             if info["key"] == key:
                 start = datetime.strptime(info["start"],"%Y-%m-%d")
                 end = datetime.strptime(info["end"],"%Y-%m-%d")
@@ -52,5 +49,4 @@ def backtestView(request):
         comet.disconnect()
     except Exception as e:
         complete = {"trades":[],"errors":str(e)}
-        print(str(e))
     return JsonResponse(complete,safe=False)

@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'backend',
+    'comet_historian',
+    'comet_backtester',
     'rest_framework',
     'comet_utils'
 ]
