@@ -51,7 +51,7 @@ def analysisView(request):
                 elif side == "entry":
                     entry_strategy = info["entry_strategy"]
                     rec = entry_strat.entry_analysis(entry_strategy,pd.DataFrame(merged),signal,value,conservative)
-                    complete = {"rec":rec.drop("_id",axis=1,errors="ignore").to_dict("records")[0]}
+                    complete = {"rec":rec.drop("_id",axis=1,errors="ignore").to_dict("records")}
             else:
                 complete = {"rec":{},"errors":"incorrect key"}
         else:
