@@ -23,12 +23,11 @@ load_dotenv()
 mongouser = os.getenv("MONGOUSER")
 mongokey = os.getenv("MONGOKEY")
 comet_historian = CometHistorian(mongouser,mongokey)
-comet = Comet(True,mongouser,mongokey)
 
 @csrf_exempt
 def analysisView(request):
     try:
-        comet.cloud_connect()
+        comet_historian.cloud_connect()
         key = comet_historian.retrieve("historian_key").iloc[0]["key"]
         if request.method == "GET":
             complete = {}
@@ -58,7 +57,7 @@ def analysisView(request):
                 complete = {"rec":{},"errors":"incorrect key"}
         else:
             complete = {}
-        comet.disconnect()
+        comet_historian.disconnect()
     except Exception as e:
         complete = {"rec":{},"errors":str(e)}
         print(str(e))
