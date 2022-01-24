@@ -17,12 +17,10 @@ load_dotenv()
 mongouser = os.getenv("MONGOUSER")
 mongokey = os.getenv("MONGOKEY")
 comet_historian = CometHistorian(mongouser,mongokey)
-comet = Comet(True,mongouser,mongokey)
 @csrf_exempt
 def backtestView(request):
     try:
         comet_historian.cloud_connect()
-        comet.cloud_connect()
         key = comet_historian.retrieve("historian_key").iloc[0]["key"]
         if request.method == "GET":
             complete = {}
@@ -40,7 +38,7 @@ def backtestView(request):
                         info[key] = int(info[key])
                 comet_historian.cloud_connect()
                 comet_historian.store("backtest_request",pd.DataFrame([info]))
-                prices = comet.retrieve("coinbase_prices")
+                prices = comet_historian.retrieve("coinbase_prices")
                 prices = p.column_date_processing(prices)
                 trades = bt.backtest(start,end,info,prices)
                 analysis = bt.analyze(trades,prices)
@@ -49,7 +47,6 @@ def backtestView(request):
                 complete = {"trades":[],"errors":"incorrect key"}
         else:
             complete = {}
-        comet.disconnect()
         comet_historian.disconnect()
     except Exception as e:
         complete = {"trades":[],"errors":str(e)}
