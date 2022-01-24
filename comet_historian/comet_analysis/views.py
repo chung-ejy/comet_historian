@@ -39,7 +39,6 @@ def analysisView(request):
             if info["key"] == key:
                 merged = info["data"]
                 req = float(info["req"] / 100)
-                signal = float(info["signal"] / 100)
                 value = info["value"]
                 side = info["side"]
                 conservative = info["conservative"]
@@ -49,6 +48,7 @@ def analysisView(request):
                     rec = exit_strat.exit_analysis(exit_strategy,order,pd.DataFrame(merged),req)
                     complete = {"rec":rec}
                 elif side == "entry":
+                    signal = float(info["signal"] / 100)
                     entry_strategy = info["entry_strategy"]
                     rec = entry_strat.entry_analysis(entry_strategy,pd.DataFrame(merged),signal,value,conservative)
                     complete = {"rec":rec.drop("_id",axis=1,errors="ignore").to_dict("records")}
