@@ -23,7 +23,11 @@ def backtestView(request):
         comet_historian.cloud_connect()
         key = comet_historian.retrieve("historian_key").iloc[0]["key"]
         if request.method == "GET":
-            complete = {}
+            if key == request.headers["x-api-key"]:
+                symbols = comet_historian.retrieve("coinbase_prices")["crypto"].unique().to_dict("records")
+                complete = symbols
+            else:
+                complete = {"errors":"incorrect_key"}
         elif request.method == "DELETE":
             complete = {}
         elif request.method == "UPDATE":
