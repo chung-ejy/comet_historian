@@ -38,17 +38,17 @@ def analysisView(request):
             info = json.loads(request.body.decode("utf-8"))
             if info["key"] == key:
                 merged = info["data"]
-                req = float(info["req"] / 100)
-                value = info["value"]
                 side = info["side"]
-                conservative = info["conservative"]
                 if side == "exit":
                     order = info["order"]
+                    req = float(info["req"] / 100)
                     exit_strategy = info["exit_strategy"]
                     rec = exit_strat.exit_analysis(exit_strategy,order,pd.DataFrame(merged),req)
                     complete = {"rec":rec}
                 elif side == "entry":
                     signal = float(info["signal"] / 100)
+                    value = info["value"]
+                    conservative = info["conservative"]
                     entry_strategy = info["entry_strategy"]
                     rec = entry_strat.entry_analysis(entry_strategy,pd.DataFrame(merged),signal,value,conservative)
                     complete = {"rec":rec.drop("_id",axis=1,errors="ignore").to_dict("records")}
