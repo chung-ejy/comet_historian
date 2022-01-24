@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 import requests
 from pymongo import MongoClient
 from comet_utils.database.comet import Comet
+from comet_utils.database.comet_historian import CometHistorian
 from comet_utils.backtester.backtester import Backtester as bt
 from comet_utils.analyzer.entry_strategy import EntryStrategy as entry_strat
 from comet_utils.analyzer.exit_strategy import ExitStrategy as exit_strat
@@ -21,13 +22,14 @@ from dotenv import load_dotenv
 load_dotenv()
 mongouser = os.getenv("MONGOUSER")
 mongokey = os.getenv("MONGOKEY")
+comet_historian = CometHistorian(mongouser,mongokey)
 comet = Comet(True,mongouser,mongokey)
 
 @csrf_exempt
 def analysisView(request):
     try:
         comet.cloud_connect()
-        key = comet.retrieve("historian_key").iloc[0]["key"]
+        key = comet_historian.retrieve("historian_key").iloc[0]["key"]
         if request.method == "GET":
             complete = {}
         elif request.method == "DELETE":
