@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 import requests
 from pymongo import MongoClient
 from comet_utils.database.comet_historian import CometHistorian
-from comet_utils.database.comet import Comet
 from comet_utils.backtester.backtester import Backtester as bt
 from comet_utils.processor.processor import Processor as p
 import os
@@ -24,7 +23,7 @@ def backtestView(request):
         key = comet_historian.retrieve("historian_key").iloc[0]["key"]
         if request.method == "GET":
             if key == request.headers["x-api-key"]:
-                symbols = comet_historian.retrieve("coinbase_prices")["crypto"].unique().to_dict("records")
+                symbols = list(comet_historian.retrieve("coinbase_prices")["crypto"].unique())
                 complete = symbols
             else:
                 complete = {"errors":"incorrect_key"}

@@ -10,7 +10,6 @@ from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta
 import requests
 from pymongo import MongoClient
-from comet_utils.database.comet import Comet
 from comet_utils.database.comet_historian import CometHistorian
 from comet_utils.backtester.backtester import Backtester as bt
 from comet_utils.analyzer.entry_strategy import EntryStrategy as entry_strat
