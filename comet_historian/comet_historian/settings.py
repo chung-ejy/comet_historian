@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'comet_historian',
     'comet_backtester',
     'rest_framework',
-    'comet_utils'
+    'comet_utils',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = 'comet_historian.urls'
@@ -126,3 +128,15 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 django_heroku.settings(locals())
+
+CORS_ALLOWED_ORIGINS = [
+    "https://cometchaser.herokuapp.com",
+    "http://localhost:8000"
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "POST",
+    "PUT",
+]
