@@ -24,6 +24,7 @@ def backtestView(request):
         if request.method == "GET":
             if key == request.headers["x-api-key"]:
                 symbols = list(comet_historian.get_symbols("coinbase"))
+                print(symbols)
                 complete = symbols
             else:
                 complete = {"errors":"incorrect_key"}
