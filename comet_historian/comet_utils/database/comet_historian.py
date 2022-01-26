@@ -11,6 +11,6 @@ class CometHistorian(ADatabase):
             db = self.client[self.name]
             table = db[f"{api}_prices"]
             data = table.find({}).distinct("crypto")
-            return pd.DataFrame(list(data))
+            return list(data)
         except Exception as e:
             print(self.name,"fills",str(e))
