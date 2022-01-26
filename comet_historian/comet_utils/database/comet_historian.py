@@ -5,3 +5,12 @@ class CometHistorian(ADatabase):
     
     def __init__(self,mongouser,mongokey):
         super().__init__("comet_historian",mongouser,mongokey)
+    
+    def get_symbols(self,api):
+        try:
+            db = self.client[self.name]
+            table = db[f"{api}_prices"]
+            data = table.find({},{"crypto":1,"_id":0},show_record_id=False)
+            return pd.DataFrame(list(data))
+        except Exception as e:
+            print(self.name,"fills",str(e))
