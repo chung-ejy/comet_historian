@@ -11,9 +11,74 @@ class Backtester(object):
     @classmethod
     def backtest(self,start,end,params,prices):
         status = "loads"
-        symbols = params["symbols"]
-        if "ALL" in symbols:
-            symbols = prices["crypto"].unique()
+        # symbols = params["symbols"]
+        # if "ALL" in symbols:
+        #     symbols = prices["crypto"].unique()
+        rt = params["retrack_days"]
+        s = params["signal"]
+        r = params["req"]
+        value = params["value"]
+        positions = params["positions"]
+        conservative = params["conservative"]
+        entry_strat = params["entry_strategy"]
+        exit_strat = params["exit_strategy"]
+        market = prices.pivot_table(index="date",columns="crypto",values="close").reset_index()
+        market = p.column_date_processing(market)
+        market = market.fillna(method="ffill")
+        sim = market.melt(id_vars="date").copy()
+        ns = []
+        sim = sim[sim["value"] > 0]
+        for crypto in sim["crypto"].unique():
+            crypto_sim = sim[sim["crypto"]==crypto].copy()
+            crypto_sim.sort_values("date",inplace=True)
+            crypto_sim["signal"] = crypto_sim["value"].pct_change(rt)
+            crypto_sim["velocity"] = crypto_sim["signal"].pct_change(rt)
+            crypto_sim["inflection"] = crypto_sim["velocity"].pct_change(rt)
+            crypto_sim["p_sign_change"] = [row[1]["velocity"] * row[1]["inflection"] < 0 for row in crypto_sim.iterrows()]
+            ns.append(crypto_sim)
+        final = pd.concat(ns)
+        final = final[(final["date"] < end) & (final["value"] > 0)].dropna()
+        final.rename(columns={"value":"close"},inplace=True)
+        signal = float(s/100)
+        req = float(r/100)
+        date = start
+        trades = []
+        for position in range(positions):
+            date = start
+            while date < end:
+                try:
+                    status = "entries"
+                    offerings = EntryStrategy.backtest_entry_analysis(date,entry_strat,final,signal,value,conservative)
+                    if offerings.index.size < 1:
+                        date = date + timedelta(days=1)
+                    else:
+                        status = "exits"
+                        if offerings.index.size < position:
+                            date = date + timedelta(days=1)
+                            continue
+                        else:
+                            trade = offerings.iloc[position]
+                            trade = ExitStrategy.backtest_exit_analysis(exit_strat,final,trade,rt,req)
+                            trade["signal"] = signal
+                            trade["req"] = req
+                            trade["retrack_days"] = rt
+                            trade["value"] = value
+                            trade["conservative"] = conservative
+                            trade["entry_strategy"] = entry_strat
+                            trade["exit_strategy"] = exit_strat
+                            trade["position"] = position
+                            trade["positions"] = positions
+                            trades.append(trade)
+                            status = "date adding"
+                            date = trade["sell_date"] + timedelta(days=1)
+                except Exception as e:
+                    # print(date,status,trade,str(e))
+                    date = date + timedelta(days=1)
+        return pd.DataFrame(trades)
+    
+    @classmethod
+    def pairs_trading_backtest(self,start,end,params,prices,correlations):
+        status = "loads"
         rt = params["retrack_days"]
         s = params["signal"]
         r = params["req"]
@@ -27,7 +92,7 @@ class Backtester(object):
         sim = market.melt(id_vars="date").copy()
         ns = []
         sim = sim[sim["value"] > 0]
-        for crypto in [x.lower() for x in symbols]:
+        for crypto in sim["crypto"].unique():
             crypto_sim = sim[sim["crypto"]==crypto].copy()
             crypto_sim.sort_values("date",inplace=True)
             crypto_sim["signal"] = crypto_sim["value"].pct_change(rt)
@@ -36,7 +101,7 @@ class Backtester(object):
             crypto_sim["p_sign_change"] = [row[1]["velocity"] * row[1]["inflection"] < 0 for row in crypto_sim.iterrows()]
             ns.append(crypto_sim)
         final = pd.concat(ns)
-        final = final[(final["date"] < end) & (final["value"] > 0)]
+        final = final[(final["date"] < end) & (final["value"] > 0)].dropna()
         final.rename(columns={"value":"close"},inplace=True)
         signal = float(s/100)
         req = float(r/100)
@@ -50,22 +115,48 @@ class Backtester(object):
                     date = date + timedelta(days=1)
                 else:
                     status = "exits"
-                    trade = offerings.iloc[0]
-                    trade = ExitStrategy.backtest_exit_analysis(exit_strat,final,trade,rt,req)
-                    trade["signal"] = signal
-                    trade["req"] = req
-                    trade["retrack_days"] = rt
-                    trade["value"] = value
-                    trade["conservative"] = conservative
-                    trade["entry_strategy"] = entry_strat
-                    trade["exit_strategy"] = exit_strat
-                    trades.append(trade)
+                    trade_i = offerings.iloc[0]
+                    trade_i = ExitStrategy.backtest_exit_analysis(exit_strat,final,trade_i,rt,req)
+                    trade_i["signal"] = signal
+                    trade_i["req"] = req
+                    trade_i["retrack_days"] = rt
+                    trade_i["value"] = value
+                    trade_i["conservative"] = conservative
+                    trade_i["entry_strategy"] = entry_strat
+                    trade_i["exit_strategy"] = exit_strat
+                    trade_i["position"] = 0
+                    trades.append(trade_i)
+                    date_2 = date
+                    while date_2 < trade_i["sell_date"] and date_2 < end:
+                        try:
+                            status = "entries"
+                            symbol_correlations = correlations[(correlations["crypto"]==trade_i["crypto"]) & (correlations["value"]<=-0.7)]["crypto_ii"].unique()
+                            second_final = final[final["crypto"].isin(list(symbol_correlations)) & (final["date"] <= trade_i["sell_date"])].sort_values("date")
+                            offerings = EntryStrategy.backtest_entry_analysis(date_2,entry_strat,second_final,float(signal/3),value,conservative)
+                            if offerings.index.size < 1:
+                                date_2 = date_2 + timedelta(days=1)
+                            else:
+                                status = "exits"
+                                trade_ii = offerings.iloc[0]
+                                trade_ii = ExitStrategy.backtest_exit_analysis(exit_strat,second_final,trade_ii,rt,float(req/3))
+                                trade_ii["signal"] = signal
+                                trade_ii["req"] = req
+                                trade_ii["retrack_days"] = rt
+                                trade_ii["value"] = value
+                                trade_ii["conservative"] = conservative
+                                trade_ii["entry_strategy"] = entry_strat
+                                trade_ii["exit_strategy"] = exit_strat
+                                trade_ii["position"] = 1
+                                trades.append(trade_ii)
+                                date_2 = trade_ii["sell_date"] + timedelta(days=1)
+                        except Exception as e:
+                            # print(date,status,trade_ii,str(e))
+                            date_2 = date_2 + timedelta(days=1)
                     status = "date adding"
-                    date = trade["sell_date"] + timedelta(days=1)
+                    date = trade_i["sell_date"] + timedelta(days=1)
             except Exception as e:
-                print(date,status,trade,str(e))
+                # print(date,status,trade_i,str(e))
                 date = date + timedelta(days=1)
-
         return pd.DataFrame(trades)
 
     @classmethod
