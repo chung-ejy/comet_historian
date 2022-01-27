@@ -44,9 +44,7 @@ def backtestView(request):
                 prices = comet_historian.retrieve("alpha_prices")
                 prices = p.column_date_processing(prices)
                 trades = bt.backtest(start,end,info,prices)
-                # analysis = bt.analyze(trades,prices)
                 complete = {"trades":trades.to_dict("records")
-                # ,"analysis":analysis.to_dict("records")
                 ,"analysis":[]
                 }
             else:

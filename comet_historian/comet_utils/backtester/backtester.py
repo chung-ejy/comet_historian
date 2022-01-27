@@ -28,7 +28,7 @@ class Backtester(object):
         sim = market.melt(id_vars="date").copy()
         ns = []
         sim = sim[sim["value"] > 0]
-        for crypto in symbols:
+        for crypto in [x.lower() for x in symbols]:
             crypto_sim = sim[sim["crypto"]==crypto].copy()
             crypto_sim.sort_values("date",inplace=True)
             crypto_sim["signal"] = crypto_sim["value"].pct_change(rt)
