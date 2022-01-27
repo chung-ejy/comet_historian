@@ -38,14 +38,14 @@ def backtestView(request):
                 start = datetime.strptime(info["start"],"%Y-%m-%d")
                 end = datetime.strptime(info["end"],"%Y-%m-%d")
                 for key in info.keys():
-                    if key in ["req","signal","retrack_days"]:
+                    if key in ["req","signal","retrack_days","positions"]:
                         info[key] = int(info[key])
                 comet_historian.cloud_connect()
                 comet_historian.store("backtest_request",pd.DataFrame([info]))
                 prices = comet_historian.retrieve("coinbase_prices")
                 prices = p.column_date_processing(prices)
                 trades = bt.backtest(start,end,info,prices)
-                analysis = bt.analyze(trades,prices)
+                # analysis = bt.analyze(trades,prices)
                 complete = {"trades":trades.to_dict("records")
                 # ,"analysis":analysis.to_dict("records")
                 ,"analysis":[]
