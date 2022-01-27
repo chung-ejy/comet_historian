@@ -11,9 +11,9 @@ class Backtester(object):
     @classmethod
     def backtest(self,start,end,params,prices):
         status = "loads"
-        # symbols = params["symbols"]
-        # if "ALL" in symbols:
-        #     symbols = prices["crypto"].unique()
+        symbols = params["symbols"]
+        if "ALL" in symbols:
+            symbols = prices["crypto"].unique()
         rt = params["retrack_days"]
         s = params["signal"]
         r = params["req"]
@@ -28,7 +28,7 @@ class Backtester(object):
         sim = market.melt(id_vars="date").copy()
         ns = []
         sim = sim[sim["value"] > 0]
-        for crypto in sim["crypto"].unique():
+        for crypto in symbols:
             crypto_sim = sim[sim["crypto"]==crypto].copy()
             crypto_sim.sort_values("date",inplace=True)
             crypto_sim["signal"] = crypto_sim["value"].pct_change(rt)
