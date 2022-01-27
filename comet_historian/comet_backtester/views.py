@@ -24,7 +24,6 @@ def backtestView(request):
         if request.method == "GET":
             if key == request.headers["x-api-key"]:
                 symbols = comet_historian.get_symbols("coinbase")
-                print(symbols)
                 complete = symbols
             else:
                 complete = {"errors":"incorrect_key"}
@@ -42,7 +41,7 @@ def backtestView(request):
                         info[key] = int(info[key])
                 comet_historian.cloud_connect()
                 comet_historian.store("backtest_request",pd.DataFrame([info]))
-                prices = comet_historian.retrieve("coinbase_prices")
+                prices = comet_historian.retrieve("alpha_prices")
                 prices = p.column_date_processing(prices)
                 trades = bt.backtest(start,end,info,prices)
                 # analysis = bt.analyze(trades,prices)
